@@ -1,4 +1,4 @@
-# IVT Spaceship [![Build Status](https://travis-ci.org/tt1991/ivt-lab.svg?branch=master)](https://travis-ci.org/tt1991/ivt-lab.svg?branch=master)
+# IVT Spaceship [![Build Status](https://travis-ci.org/tt1991/ivt-lab.svg?branch=master)](https://travis-ci.org/tt1991/ivt-lab)
 
 This is a sample application for the [Integration and Verification Techniques](http://www.mit.bme.hu/oktatas/targyak/vimiac04) course at BME MIT. The application is simplified and deliberately contains bugs.
 
