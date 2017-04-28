@@ -33,8 +33,102 @@ public class GT4500Test {
     // Assert
     assertEquals(true, result);
 
-    verify(mockPrimaryTorpedoStore, times(1)).isEmpty();
-    verify(mockPrimaryTorpedoStore, times(1)).fire(1);
+    verifyMockWithBothMethod(true, 1, 1, 1);
+  }
+
+  @Test
+  public void fireTorpedos_Single_JustThePrimaryStoreIsFired(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockPrimaryTorpedoStore.fire(1)).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockSecondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    // Act
+    boolean result = ship.fireTorpedos(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(true, result);
+
+    verifyMockWithFireMethod(true, 1, 1);
+    verifyMockWithFireMethod(false, 0, 1);
+  }
+
+  @Test
+  public void fireTorpedos_Single_BothStoreIsFired(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockPrimaryTorpedoStore.fire(1)).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockSecondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    // Act
+    boolean firstResult = ship.fireTorpedos(FiringMode.SINGLE);
+    boolean secondResult = ship.fireTorpedos(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(true, firstResult);
+    assertEquals(true, secondResult);
+
+    verifyMockWithFireMethod(true, 1, 1);
+    verifyMockWithFireMethod(false, 1, 1);
+  }
+
+  @Test
+  public void fireTorpedos_Single_FirstIsEmptySecondStoreIsFired(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockSecondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    // Act
+    boolean result = ship.fireTorpedos(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(true, result);
+
+    verifyMockWithBothMethod(true, 1, 0, 1);
+    verifyMockWithFireMethod(false, 1, 1);
+  }
+
+  @Test
+  public void fireTorpedos_Single_SecondIsEmptyFirstStoreIsFiredTwice(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(mockPrimaryTorpedoStore.fire(1)).thenReturn(true);
+
+    // Act
+    boolean firstResult = ship.fireTorpedos(FiringMode.SINGLE);
+    boolean secondResult = ship.fireTorpedos(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(true, firstResult);
+    assertEquals(true, secondResult);
+
+    verifyMockWithBothMethod(true, 2, 2, 1);
+    verifyMockWithBothMethod(false, 1, 0, 1);
+  }
+
+  @Test
+  public void fireTorpedos_Single_BothAreEmptyNotSuccess(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(true);
+
+    // Act
+    boolean result = ship.fireTorpedos(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(false, result);
+
+    verifyMockWithBothMethod(true, 1, 0, 1);
+    verifyMockWithBothMethod(false, 1, 0, 1);
   }
 
   @Test
@@ -52,10 +146,35 @@ public class GT4500Test {
     // Assert
     assertEquals(true, result);
 
-    verify(mockPrimaryTorpedoStore, times(1)).isEmpty();
-    verify(mockPrimaryTorpedoStore, times(1)).fire(1);
-    verify(mockSecondaryTorpedoStore, times(1)).isEmpty();
-    verify(mockSecondaryTorpedoStore, times(1)).fire(1);
+    verifyMockWithBothMethod(false, 1, 1, 1);
   }
 
+  @Test
+  public void fireTorpedos_All_FirstIsEmptySecondStoreFiredIsSuccess(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockSecondaryTorpedoStore.fire(1)).thenReturn(true);
+
+    // Act
+    boolean result = ship.fireTorpedos(FiringMode.ALL);
+
+    // Assert
+    assertEquals(true, result);
+
+    verifyMockWithBothMethod(true, 1, 0, 1);
+    verifyMockWithBothMethod(false, 1, 1, 1);
+  }
+
+  public void verifyMockWithBothMethod(boolean isPrimary, int isEmpty, int fire, int fireTimes) {
+    TorpedoStore mock = isPrimary ? mockPrimaryTorpedoStore : mockSecondaryTorpedoStore;
+    verify(mock, times(isEmpty)).isEmpty();
+    verify(mock, times(fire)).fire(fireTimes);
+  }
+
+  public void verifyMockWithFireMethod(boolean isPrimary, int fire, int fireTimes) {
+    TorpedoStore mock = isPrimary ? mockPrimaryTorpedoStore : mockSecondaryTorpedoStore;
+    verify(mock, times(fire)).fire(fireTimes);
+  }
 }
