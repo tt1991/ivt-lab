@@ -115,6 +115,25 @@ public class GT4500Test {
   }
 
   @Test
+  public void fireTorpedos_Single_ForTheSecondTimeBothStoreIsEmpty(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(false).thenReturn(true);
+    when(mockPrimaryTorpedoStore.fire(1)).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(true);
+
+    // Act
+    boolean firstResult = ship.fireTorpedos(FiringMode.SINGLE);
+    boolean secondResult = ship.fireTorpedos(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(true, firstResult);
+    assertEquals(false, secondResult);
+
+    verifyMockWithBothMethod(true, 2, 1, 1);
+  }
+
+  @Test
   public void fireTorpedos_Single_BothAreEmptyNotSuccess(){
     // Arrange
 
@@ -150,6 +169,24 @@ public class GT4500Test {
   }
 
   @Test
+  public void fireTorpedos_All_SecondIsEmptySecondStoreFiredIsSuccess(){
+    // Arrange
+
+    when(mockPrimaryTorpedoStore.isEmpty()).thenReturn(false);
+    when(mockPrimaryTorpedoStore.fire(1)).thenReturn(true);
+    when(mockSecondaryTorpedoStore.isEmpty()).thenReturn(true);
+
+    // Act
+    boolean result = ship.fireTorpedos(FiringMode.ALL);
+
+    // Assert
+    assertEquals(true, result);
+
+    verifyMockWithBothMethod(true, 1, 1, 1);
+    verifyMockWithBothMethod(false, 1, 0, 1);
+  }
+
+  @Test
   public void fireTorpedos_All_FirstIsEmptySecondStoreFiredIsSuccess(){
     // Arrange
 
@@ -165,6 +202,28 @@ public class GT4500Test {
 
     verifyMockWithBothMethod(true, 1, 0, 1);
     verifyMockWithBothMethod(false, 1, 1, 1);
+  }
+
+  @Test
+  public void fireLasers_Single_ReturnsFalse(){
+    // Arrange
+
+    // Act
+    boolean result = ship.fireLasers(FiringMode.SINGLE);
+
+    // Assert
+    assertEquals(false, result);
+  }
+
+  @Test
+  public void fireLasers_All_ReturnsFalse(){
+    // Arrange
+
+    // Act
+    boolean result = ship.fireLasers(FiringMode.ALL);
+
+    // Assert
+    assertEquals(false, result);
   }
 
   public void verifyMockWithBothMethod(boolean isPrimary, int isEmpty, int fire, int fireTimes) {
